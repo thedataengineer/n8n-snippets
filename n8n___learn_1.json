@@ -1,0 +1,200 @@
+{
+  "name": "n8n - learn 1",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "On clicking 'execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "600cdecc-e7b6-4522-88d8-983f04de5872"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Spreadsheet File",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "position": [
+        400,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "039315c2-9bdd-48c4-928e-0019a0cbc2bb"
+    },
+    {
+      "parameters": {
+        "filePath": "/home/LabCorp-Contacts.xlsx"
+      },
+      "name": "Read Binary File",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "position": [
+        200,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "2e494d47-58e6-45a7-9ec1-523c431b50b0"
+    },
+    {
+      "parameters": {
+        "batchSize": 50,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        620,
+        0
+      ],
+      "id": "7092a2d7-7328-4780-ab4a-0bd9ef74a2af",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        840,
+        80
+      ],
+      "id": "6e224acb-de20-4df0-abc8-a2c200aa401e",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "toRecipients": "aswani.karteek@accionlabs.com",
+        "subject": "Test",
+        "additionalFields": {
+          "attachments": {
+            "attachments": [
+              {
+                "binaryPropertyName": "data"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        180
+      ],
+      "id": "22856314-73b6-4ecf-93ad-f595aa5d9495",
+      "name": "Microsoft Outlook",
+      "webhookId": "5bcdc80f-c17d-4d55-aa65-32f7108afaba",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "9IoRxU51Axx8uZO4",
+          "name": "Microsoft Outlook account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        840,
+        -100
+      ],
+      "id": "7f998708-3ce7-431d-bdad-30165db7015f",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Read Binary File": {
+      "main": [
+        [
+          {
+            "node": "Spreadsheet File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On clicking 'execute'": {
+      "main": [
+        [
+          {
+            "node": "Read Binary File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spreadsheet File": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Microsoft Outlook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft Outlook": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "365f90c2-b570-4145-85fe-4660db55de16",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4586b001a4bd72041440d12cfb7b09f78f633b1d42e8cacb0ac43c1849bb9f1b"
+  },
+  "id": "IJtNiIEnJHBAq9PZ",
+  "tags": []
+}
