@@ -1,0 +1,217 @@
+{
+  "name": "n8n - learn 1",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "On clicking 'execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "600cdecc-e7b6-4522-88d8-983f04de5872"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Spreadsheet File",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "position": [
+        400,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "039315c2-9bdd-48c4-928e-0019a0cbc2bb"
+    },
+    {
+      "parameters": {
+        "filePath": "/home/LabCorp-Contacts.xlsx"
+      },
+      "name": "Read Binary File",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "position": [
+        200,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "2e494d47-58e6-45a7-9ec1-523c431b50b0"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        840,
+        0
+      ],
+      "id": "7092a2d7-7328-4780-ab4a-0bd9ef74a2af",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Write a professional yet friendly follow-up email to {{ $json[\"FirstName\"] }}, who is the {{ $json[\"JobTitle\"] }} at {{ $json[\"Company\"] }}. \n\nContext: We recently hosted the Accion Innovation Summit in Goa, focused on themes like AI-augmented SDLC productivity, agent orchestration, and secure AI-native systems. We missed having them at the event and want to share the key takeaways with them. \n\nThe email should:\n- Mention that we missed their presence at the summit.\n- Briefly summarize the key themes:\n  - AI-Augmented Development and SDLC productivity (e.g., Breeze.AI reducing translation tax)\n  - Agentification of automation platforms\n  - Security frameworks for AI-native systems (e.g., blockchain, quantum-safe patterns)\n  - Data-driven product engineering\n- Emphasize that the attached CTO summary is high-level and actionable.\n- Offer a conversation to walk them through takeaways or explore shared interests in automation, especially for hybrid environments or mature product AI upgrades.\n\nTone: Executive, lightly consultative, semi-formal. Keep it under 180 words.\nSign off as: \"Warm regards, Karteek Yadavilli\"\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1060,
+        120
+      ],
+      "id": "efaf2516-21b2-43e5-8676-f773e7444a08",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "AB57GMVVGBOmgumo",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=Email to  {{ $('Loop Over Items').item.json.Name }} about summit",
+        "bodyContent": "={{ $json.message.content }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        1420,
+        120
+      ],
+      "id": "85bfa339-98a8-465d-8a54-842806799a3f",
+      "name": "Microsoft Outlook",
+      "webhookId": "c1bfc3a4-e3a9-4a12-a159-99e483e7688c",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "9IoRxU51Axx8uZO4",
+          "name": "Microsoft Outlook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        620,
+        0
+      ],
+      "id": "874e1a64-acc2-4d18-b198-d389dc2062a4",
+      "name": "Limit"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Read Binary File": {
+      "main": [
+        [
+          {
+            "node": "Spreadsheet File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On clicking 'execute'": {
+      "main": [
+        [
+          {
+            "node": "Read Binary File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spreadsheet File": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Microsoft Outlook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft Outlook": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "bf384d9c-5c52-4eb9-b74d-8e2b2c0f5a9b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4586b001a4bd72041440d12cfb7b09f78f633b1d42e8cacb0ac43c1849bb9f1b"
+  },
+  "id": "IJtNiIEnJHBAq9PZ",
+  "tags": []
+}
